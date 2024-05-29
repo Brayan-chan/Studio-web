@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Arrastrar y Soltar</title>
+    <style>
+        .container {
+            display: flex;
+            gap: 10px;
+        }
+        .draggable {
+            cursor: move;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+        }
+        #dropContainer {
+            min-height: 800px;
+            border: 2px dashed #999;
+            position: relative;
+        }
+        .component {
+            cursor: pointer;
+            touch-action: none;
+            position: absolute;
+        }
+        .component img {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="dragContainer">
+    <div class="draggable" draggable="true" data-component="title">Título</div>
+    <div class="draggable" draggable="true" data-component="text">Texto</div>
+    <div class="draggable" draggable="true" data-component="image">Imagen</div>
+</div>
+
+<div class="container" id="dropContainer" droppable="true"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.12"></script>
+<script>
+    // Función para arrastrar y soltar
+    function allowDrop(event) {
+        event.preventDefault();
+    }
+
+    function drag(event) {
+        event.dataTransfer.setData("text", event.target.dataset.component);
+    }
+
+    function drop(event) {
+        event.preventDefault();
+        var componentType = event.dataTransfer.getData("text");
+        var component = document.createElement("div");
+        component.className = "component";
+        component.style.top = (event.clientY - event.target.getBoundingClientRect().top) + "px";
+        component.style.left = (event.clientX - event.target.getBoundingClientRect().left) + "px";
+        if (componentType === "title") {
+            component.innerHTML = "<h2 contenteditable='true'>Este es un título</h2>";
+        } else if (componentType === "text") {
+            component.innerHTML = "<p contenteditable='true'>Este es un texto</p>";
+        } else if (componentType === "image") {
+            var imageUrl = prompt("Ingrese la URL de la imagen:");
+            if (imageUrl) {
+                component.innerHTML = "<img src='" + imageUrl + "' alt='Imagen'>";
+            }
+        }
+        document.getElementById("dropContainer").appendChild(component);
+        makeComponentDraggableResizable(component);
+    }
+
+    function makeComponentDraggableResizable(component) {
+        interact(component)
+            .draggable({
+                inertia: true,
+                modifiers: [
+                    interact.modifiers.restrictRect({
+                        restriction: 'parent'
+                    })
+                ],
+                autoScroll: true,
+                onmove: dragMoveListener
+            })
+            .resizable({
+                edges: { left: true, right: true, top: true, bottom: true },
+                restrictEdges: {
+                    outer: 'parent',
+                },
+                inertia: true,
+            })
+            .on('resizemove', function (event) {
+                var target = event.target;
+                var x = parseFloat(target.getAttribute('data-x')) || 0;
+                var y = parseFloat(target.getAttribute('data-y')) || 0;
+                var width = parseFloat(target.style.width) || target.offsetWidth;
+                var height = parseFloat(target.style.height) || target.offsetHeight;
+
+                target.style.width = event.rect.width + 'px';
+                target.style.height = event.rect.height + 'px';
+                target.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+            });
+
+        component.addEventListener('touchstart', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        });
+    }
+
+    function dragMoveListener(event) {
+        var target = event.target;
+        var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+        var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+        target.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+        target.setAttribute('data-x', x);
+        target.setAttribute('data-y', y);
+    }
+
+    // Agrega eventos a los elementos arrastrables y contenedor de soltar
+    document.querySelectorAll('.draggable').forEach(item => {
+        item.addEventListener('dragstart', drag);
+    });
+    document.getElementById('dropContainer').addEventListener('dragover', allowDrop);
+    document.getElementById('dropContainer').addEventListener('drop', drop);
+</script>
+
+</body>
+</html>
