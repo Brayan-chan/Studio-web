@@ -16,7 +16,7 @@
             background-color: #f0f0f0;
         }
         #dropContainer {
-            min-height: 800px;
+            min-height: 600px;
             border: 2px dashed #999;
             position: relative;
         }
@@ -34,17 +34,47 @@
 <body>
 
 <div class="container" id="dragContainer">
-    <div class="draggable" draggable="true" data-component="title">Título</div>
-    <div class="draggable" draggable="true" data-component="text">Texto</div>
-    <div class="draggable" draggable="true" data-component="image">Imagen</div>
-    <button onclick="location.href='movil.html'">Versión móvil</button>
+    <div class="draggable" data-component="title">Título</div>
+    <div class="draggable" data-component="text">Texto</div>
+    <div class="draggable" data-component="image">Imagen</div>
 </div>
 
 <div class="container" id="dropContainer" droppable="true"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.12"></script>
 <script>
-    // Función para arrastrar y soltar
+    // Función para detectar dispositivos móviles
+    function isMobileDevice() {
+        return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
+    }
+
+    // Función para arrastrar y soltar en dispositivos móviles
+    function enableMobileDragging() {
+        var components = document.querySelectorAll('.draggable');
+        components.forEach(component => {
+            component.addEventListener('click', function() {
+                var componentType = this.dataset.component;
+                var component = document.createElement("div");
+                component.className = "component";
+                component.style.top = "50px";
+                component.style.left = "50px";
+                if (componentType === "title") {
+                    component.innerHTML = "<h2 contenteditable='true'>Este es un título</h2>";
+                } else if (componentType === "text") {
+                    component.innerHTML = "<p contenteditable='true'>Este es un texto</p>";
+                } else if (componentType === "image") {
+                    var imageUrl = prompt("Ingrese la URL de la imagen:");
+                    if (imageUrl) {
+                        component.innerHTML = "<img src='" + imageUrl + "' alt='Imagen'>";
+                    }
+                }
+                document.getElementById("dropContainer").appendChild(component);
+                makeComponentDraggableResizable(component);
+            });
+        });
+    }
+
+    // Función para arrastrar y soltar en dispositivos de escritorio
     function allowDrop(event) {
         event.preventDefault();
     }
@@ -121,12 +151,17 @@
         target.setAttribute('data-y', y);
     }
 
-    // Agrega eventos a los elementos arrastrables y contenedor de soltar
-    document.querySelectorAll('.draggable').forEach(item => {
-        item.addEventListener('dragstart', drag);
-    });
-    document.getElementById('dropContainer').addEventListener('dragover', allowDrop);
-    document.getElementById('dropContainer').addEventListener('drop', drop);
+    // Verificar si es un dispositivo móvil y habilitar el clic para insertar componentes
+    if (isMobileDevice()) {
+        enableMobileDragging();
+    } else {
+        // Agregar eventos para dispositivos de escritorio
+        document.querySelectorAll('.draggable').forEach(item => {
+            item.addEventListener('dragstart', drag);
+        });
+        document.getElementById('dropContainer').addEventListener('dragover', allowDrop);
+        document.getElementById('dropContainer').addEventListener('drop', drop);
+    }
 </script>
 
 </body>
