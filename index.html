@@ -4,17 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editor de Arrastrar y Soltar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .container {
-            display: flex;
-            gap: 10px;
-        }
-        .draggable {
-            cursor: move;
-            padding: 10px;
-            border: 1px solid #ccc;
-            background-color: #f0f0f0;
-        }
         #dropContainer {
             min-height: 800px;
             border: 2px dashed #999;
@@ -33,15 +24,17 @@
 </head>
 <body>
 
-<div class="container" id="dragContainer">
-    <div class="draggable" draggable="true" data-component="title">Título</div>
-    <div class="draggable" draggable="true" data-component="text">Texto</div>
-    <div class="draggable" draggable="true" data-component="image">Imagen</div>
-    <button id="generateLinkButton">Generar Enlace</button>
-    <button onclick="location.href='movil.html'">Versión móvil</button>
+<div class="flex gap-4 p-4" id="dragContainer">
+    <div class="draggable cursor-move p-2 border bg-gray-200" draggable="true" data-component="title">Título</div>
+    <div class="draggable cursor-move p-2 border bg-gray-200" draggable="true" data-component="text">Texto</div>
+    <div class="draggable cursor-move p-2 border bg-gray-200" draggable="true" data-component="image">Imagen</div>
+    <div class="draggable cursor-move p-2 border bg-gray-200" draggable="true" data-component="accordion">Acordeón</div>
+    <div class="draggable cursor-move p-2 border bg-gray-200" draggable="true" data-component="dropdown">Dropdown</div>
+    <button id="generateLinkButton" class="p-2 bg-blue-500 text-white rounded">Generar Enlace</button>
+    <button onclick="location.href='movil.html'" class="p-2 bg-green-500 text-white rounded">Versión móvil</button>
 </div>
 
-<div class="container" id="dropContainer" droppable="true"></div>
+<div class="p-4" id="dropContainer" droppable="true"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.12"></script>
 <script src="generateLink.js"></script>
